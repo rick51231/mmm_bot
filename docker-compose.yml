@@ -1,0 +1,46 @@
+version: "3.5"
+
+services:
+  db:
+
+    image: postgres:alpine
+    container_name: mlm-bot-postgres
+    environment:
+      - POSTGRES_PASSWORD=password
+
+
+
+  web:
+    build: .
+    command: bash -c "service nginx start && python manage.py runserver 0.0.0.0:8020"
+    container_name: mlm-bot-web
+    restart: unless-stopped
+    volumes:
+      - .:/code
+      - ./etc:/etc/nginx/conf.d
+      - ./static:/var/www/static
+      - ./media:/var/www/media
+      - ./certificate:/var/www/certificate
+    depends_on:
+      - db
+    networks:
+      - default
+    environment:
+      DJANGO_SETTINGS_MODULE: "core.settings"
+    ports:
+      - "8020:8020"
+
+
+  bot:
+    build: .
+    command: bash -c "python bot.py"
+    container_name: mlm-bot
+    restart: unless-stopped
+    volumes:
+      - .:/code
+    depends_on:
+      - db
+    networks:
+      - default
+    environment:
+      DJANGO_SETTINGS_MODULE: "core.settings"

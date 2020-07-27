@@ -1,0 +1,6 @@
+/venv/
+/core/migrations/
+!/core/migrations/__init__.py
+.idea
+.git
+video/*
