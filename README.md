@@ -13,7 +13,7 @@ Start project
 
 ```make m```
 
-
+```docker-compose restart```
 
 *running container commands*
 
