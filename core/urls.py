@@ -18,8 +18,7 @@ from django.urls import path
 from core.views import HomeView, BotView
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', HomeView.as_view()),
+    path('', admin.site.urls),
     path('bot/', BotView.as_view()),
 
 ]

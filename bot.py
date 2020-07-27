@@ -1,17 +1,16 @@
 import os
 import re
 import time
-import traceback
 
-from django.db import IntegrityError
 from telebot import TeleBot, types
 from django import setup
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
 
 setup()
-from core.models import Person, Settings
 
+from core.models import Person, Settings
+from django.db import IntegrityError
 settings = Settings.get()
 
 bot = TeleBot(settings.bot_id, threaded=False)
