@@ -12,7 +12,7 @@ services:
 
   web:
     build: .
-    command: bash -c "service nginx start && python manage.py runserver 0.0.0.0:8020"
+    command: bash -c "service nginx start && gunicorn core.wsgi:application --bind 0.0.0.0:8003"
     container_name: mlm-bot-web
     restart: unless-stopped
     volumes:
@@ -28,7 +28,7 @@ services:
     environment:
       DJANGO_SETTINGS_MODULE: "core.settings"
     ports:
-      - "8020:8020"
+      - "8021:8021"
 
 
   bot:
