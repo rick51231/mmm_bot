@@ -165,7 +165,7 @@ def step_3_confirm(call):
                                                 f"ID: {person.system_id}"
                                                 f"@{person.username}\n",
                          reply_markup=inline_keyboard)
-        text = 'Ожидайте подтверждения от вашего лидера'
+        text = 'Ожидайте подтверждения от вашего куратора'
         bot.edit_message_text(text, chat_id=chat_id, message_id=call.message.message_id)
     else:
         step_4_part(person)
