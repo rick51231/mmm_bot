@@ -8,7 +8,7 @@ class Person(models.Model):
     system_id = models.CharField(verbose_name="ID в системе", max_length=128, null=True, blank=True)
     chat_id = models.CharField(verbose_name="ID чата", max_length=256, null=True, blank=True)
     referrer = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True,
-                                 related_name="referral_users")
+                                 related_name="referral_users", verbose_name="Куратор")
     first_name = models.CharField(verbose_name="Имя", max_length=128, null=True, blank=True)
     last_name = models.CharField(verbose_name="Фамилия", max_length=128, null=True, blank=True)
     username = models.CharField(verbose_name="Username", max_length=128, null=True, blank=True)

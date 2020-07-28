@@ -64,6 +64,7 @@ def start(message):
 def step_1(call):
     person, _ = Person.objects.get_or_create(telegram_id=call.from_user.id)
     person.current_step = 1
+    person.select_video = call.data
     person.save()
     chat_id = call.message.chat.id
     inline_keyboard = types.InlineKeyboardMarkup(row_width=1)
@@ -162,7 +163,7 @@ def step_3_confirm(call):
 
         bot.send_message(referrer.chat_id, text=f"У вас новый пользователь \n"
                                                 f"Данные: {person.first_name} {person.last_name} \n"
-                                                f"ID: {person.system_id}"
+                                                f"ID: {person.system_id}\n"
                                                 f"@{person.username}\n",
                          reply_markup=inline_keyboard)
         text = 'Ожидайте подтверждения от вашего куратора'
