@@ -33,7 +33,10 @@ def referral_id(text):
 @bot.message_handler(commands=['start'])
 def start(message):
     referral_link = referral_id(message.text)
-    referrer = Person.objects.filter(system_id=referral_link).first()
+    if referral_link:
+        referrer = Person.objects.filter(system_id=referral_link).first()
+    else:
+        referrer = None
     person, person_create = Person.objects.get_or_create(telegram_id=message.from_user.id)
     person.first_name = message.from_user.first_name
     person.last_name = message.from_user.last_name
