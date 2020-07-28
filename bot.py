@@ -11,6 +11,7 @@ setup()
 
 from core.models import Person, Settings
 from django.db import IntegrityError
+
 settings = Settings.get()
 
 bot = TeleBot(settings.bot_id, threaded=False)
@@ -37,7 +38,7 @@ def start(message):
     person.first_name = message.from_user.first_name
     person.last_name = message.from_user.last_name
     person.username = message.from_user.username
-    if person_create:
+    if person.referrer is None:
         person.referrer = referrer
     person.chat_id = message.chat.id
     person.current_step = 0
@@ -156,9 +157,10 @@ def step_3_confirm(call):
             types.InlineKeyboardButton(text='Отменить', callback_data=f"step_3_ban_{person.telegram_id}"),
         )
 
-        bot.send_message(referrer.chat_id, text=f"У вас новый пользователь \n "
-                                                f"Данные:{person.first_name} {person.last_name}.\n"
-                                                f"@{person.username}", parse_mode="Markdown",
+        bot.send_message(referrer.chat_id, text=f"У вас новый пользователь \n"
+                                                f"Данные: {person.first_name} {person.last_name} \n"
+                                                f"ID: {person.system_id}"
+                                                f"@{person.username}\n",
                          reply_markup=inline_keyboard)
         text = 'Ожидайте подтверждения от вашего лидера'
         bot.edit_message_text(text, chat_id=chat_id, message_id=call.message.message_id)
@@ -189,7 +191,7 @@ def step_3_ban(call):
         referrer.current_step = 3
         referrer.save()
         text = 'Ваша заявка была отменена, проверьте ваш ID и отправьте заново'
-        bot.send_message(referrer.chat_id, text=text, parse_mode="Markdown")
+        bot.send_message(referrer.chat_id, text=text)
 
         chat_id = call.message.chat.id
         text = f'Заявка @{referrer.username} отклонена\n' \
