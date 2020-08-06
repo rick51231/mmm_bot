@@ -14,8 +14,9 @@ class Person(models.Model):
     username = models.CharField(verbose_name="Username", max_length=128, null=True, blank=True)
     select_video = models.CharField("Выбранное видео", max_length=256, null=True, blank=True)
     current_step = models.IntegerField("Текущий шаг", default=0)
-    date_creation = models.DateTimeField(verbose_name='Дата и время создания тикета', auto_now_add=True)
-    date_updated = models.DateTimeField(verbose_name='Дата и время последнего изменения тикета', auto_now=True)
+    date_creation = models.DateTimeField(verbose_name='Дата и время создания', auto_now_add=True)
+    date_updated = models.DateTimeField(verbose_name='Дата и время последнего изменения', auto_now=True)
+    date_finish_task = models.DateTimeField(verbose_name='Дата и время окончания теста', null=True, blank=True)
 
     def __str__(self):
         return f"{self.telegram_id} {self.first_name} {self.last_name} {self.username}"
@@ -52,3 +53,20 @@ class Settings(models.Model):
     class Meta:
         verbose_name = "Настройки"
         verbose_name_plural = "Настройки"
+
+
+class MessagePastFinish(models.Model):
+    text = models.TextField(verbose_name="Текст сообщения")
+    video = models.TextField(verbose_name="Ссылка на видео")
+
+    minute = models.IntegerField(verbose_name="Минут", default=0)
+    hours = models.IntegerField(verbose_name="Часов", default=0)
+    days = models.IntegerField(verbose_name="Дней", default=0)
+    sending = models.ManyToManyField(Person, verbose_name="Уже отправленно", default=[], blank=True)
+
+    def __str__(self):
+        return f"{self.days} {self.hours} {self.minute} {self.video}"
+
+    class Meta:
+        verbose_name = "Сообщение после прохождения теста"
+        verbose_name_plural = "Сообщения после прохождения теста"

@@ -2,29 +2,23 @@ import os
 import re
 import time
 
-from telebot import TeleBot, types
 from django import setup
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
 
 setup()
 
+from django.utils import timezone
 from core.models import Person, Settings
 from django.db import IntegrityError
+from core.settings import VIDEO_DATA_SELECT, VIDEO_STEP_1, VIDEO_STEP_2, VIDEO_STEP_3, COMPANY_URL, TEXT_STEP_1, \
+    TEXT_STEP_2, TEXT_STEP_4
+from telebot import TeleBot, types
 
 settings = Settings.get()
 
 bot = TeleBot(settings.bot_id, threaded=False)
 bot.set_webhook()
-
-video_data = {"Бизнес": "https://www.youtube.com/embed/zUdVtDNQHvM",
-              "Инвестиции": "https://www.youtube.com/embed/7I1gojBB4-o",
-              "Криптовалюта": "https://www.youtube.com/embed/Kt8zsn4EX2Y",
-              "Заработок": "https://www.youtube.com/embed/2O16eBK9qBs",
-              "Сверхдоход": "https://www.youtube.com/embed/9VWpOesYE4g",
-              "Смартфон": "https://www.youtube.com/embed/36pjDLR-lVw",
-              "Пассив": "https://www.youtube.com/embed/6gd5R5XKQFI",
-              "Регистарция": "https://www.youtube.com/embed/sKCI0QjfIgc"}
 
 
 def referral_id(text):
@@ -49,19 +43,15 @@ def start(message):
     person.save()
 
     inline_keyboard = types.InlineKeyboardMarkup(row_width=1)
-    inline_keyboard.add(
-        types.InlineKeyboardButton(text='Бизнес', callback_data="Бизнес"),
-        types.InlineKeyboardButton(text='Инвестиции', callback_data="Инвестиции"),
-        types.InlineKeyboardButton(text='Криптовалюта', callback_data="Криптовалюта"),
-        types.InlineKeyboardButton(text='Заработок', callback_data="Заработок"),
-        types.InlineKeyboardButton(text='Сверхдоход', callback_data="Сверхдоход"),
-    )
+    inline_buttons = [types.InlineKeyboardButton(text=key, callback_data=key) for key, value in
+                      VIDEO_DATA_SELECT.items()]
+
+    inline_keyboard.add(*inline_buttons)
     bot.send_message(message.chat.id, f'{message.from_user.first_name} {message.from_user.last_name},'
                                       f' в какой теме вы больше видите себя?', reply_markup=inline_keyboard)
 
 
-@bot.callback_query_handler(func=lambda mess: mess.data in ('Бизнес', 'Инвестиции', 'Заработок',
-                                                            'Сверхдоход', 'Криптовалюта'))
+@bot.callback_query_handler(func=lambda mess: mess.data in VIDEO_DATA_SELECT.keys())
 def step_1(call):
     person, _ = Person.objects.get_or_create(telegram_id=call.from_user.id)
     person.current_step = 1
@@ -73,8 +63,8 @@ def step_1(call):
     text = f'*Шаг 1*'
     bot.send_message(chat_id, text, parse_mode='Markdown')
 
-    text = f'Добро пожаловать в PlatinCoin – тот самый пассивный доход, который вы давно искали' \
-           f'[!]({video_data["Пассив"]})'
+    text = f'{TEXT_STEP_1}' \
+           f'[!]({VIDEO_STEP_1})'
 
     bot.send_message(chat_id, text, parse_mode='Markdown', reply_markup=inline_keyboard)
 
@@ -93,8 +83,8 @@ def step_2(call):
         types.InlineKeyboardButton(text='Перейти к "Шаг 3"',
                                    callback_data="step_3", )
     )
-    text = f'Убедись лично, что твой смартфон может зарабатывать деньги' \
-           f'[!]({video_data["Смартфон"]})'
+    text = f'{TEXT_STEP_2}' \
+           f'[!]({VIDEO_STEP_2})'
     bot.send_message(chat_id, text, parse_mode='Markdown', reply_markup=inline_keyboard)
 
 
@@ -113,10 +103,10 @@ def step_3(call):
     inline_keyboard.add(
         types.InlineKeyboardButton(text='Попробовать бесплатно',
                                    callback_data="bonus",
-                                   url=f"https://platincoin.com/ru/{referral}"),
+                                   url=f"{COMPANY_URL}{referral}"),
     )
     text = f'Остался последний шаг, свяжись со своим куратором' \
-           f'[.]({video_data["Регистарция"]})'
+           f'[.]({VIDEO_STEP_3})'
     bot.send_message(chat_id, f'{text}', parse_mode="Markdown", reply_markup=inline_keyboard)
 
     text = 'Не забудь отправить свой ID для перехода к "Шаг 4"'
@@ -207,6 +197,7 @@ def step_3_ban(call):
 def step_4_part(person):
     chat_id = person.chat_id
     person.current_step = 5
+    person.date_finish_task = timezone.now()
     person.save()
     bonus_link = settings.bonus_link or '' if settings else ''
     text = f'*Шаг 4*'
@@ -214,11 +205,12 @@ def step_4_part(person):
 
     inline_keyboard = types.InlineKeyboardMarkup(row_width=1)
     inline_keyboard.add(types.InlineKeyboardButton(text='Получить бонус', url=f"{bonus_link}"), )
+    default_video = VIDEO_DATA_SELECT[VIDEO_DATA_SELECT.keys()[0]] if VIDEO_DATA_SELECT.keys() else ""
 
-    text = f'А сейчас посмотри презентацию, и сделай правильный шаг, который изменит твою жизнь' \
-           f'[!]({video_data.get(person.select_video, video_data["Бизнес"])})'
+    text = f'{TEXT_STEP_4}' \
+           f'[!]({VIDEO_DATA_SELECT.get(person.select_video, default_video)})'
     bot.send_message(chat_id, f'{text}', parse_mode="Markdown", reply_markup=inline_keyboard)
-    text = f"Ваша реферелка {settings.ref_link}?start={person.system_id}"
+    text = f"Пригласи друга: {settings.ref_link}?start={person.system_id}"
     bot.send_message(chat_id, text)
 
 

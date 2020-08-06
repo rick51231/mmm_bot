@@ -1,5 +1,9 @@
 import os
+from datetime import timedelta
+
 import environ
+from celery.schedules import crontab
+
 from core.utils.base import get_settings_path
 
 env = environ.Env()
@@ -13,6 +17,14 @@ CF_KEY = env.str('CF_Key', default="")
 
 DEBUG = env.bool('DEBUG', default=True)
 IS_PRODUCTION = env.bool("IS_PRODUCTION", default=False)
+VIDEO_DATA_SELECT = env.dict("VIDEO_DATA_SELECT")
+VIDEO_STEP_1 = env.str("VIDEO_STEP_1")
+VIDEO_STEP_2 = env.str("VIDEO_STEP_2")
+VIDEO_STEP_3 = env.str("VIDEO_STEP_3")
+COMPANY_URL = env.str("COMPANY_URL")
+TEXT_STEP_1 = env.str("TEXT_STEP_1")
+TEXT_STEP_2 = env.str("TEXT_STEP_2")
+TEXT_STEP_4 = env.str("TEXT_STEP_4")
 
 ALLOWED_HOSTS = ['*']
 
@@ -26,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'core',
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [
@@ -91,3 +104,21 @@ USE_TZ = True
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 STATIC_URL = "/static/"
+
+# TRANSPORT
+REDIS_HOST = os.environ.get("REDIS_HOST", "localhost")
+REDIS_PORT = os.environ.get("REDIS_PORT", "6379")
+BROKER_URL = f'redis://{REDIS_HOST}:{REDIS_PORT}/0'
+
+CELERY_RESULT_BACKEND = f'redis://{REDIS_HOST}:{REDIS_PORT}/0'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_IMPORTS = ("workers.task",)
+
+CELERY_BEAT_SCHEDULE = {
+    'send_notification_users': {
+        'task': 'workers.task.send_notification_users',
+        'schedule': timedelta(minutes=1),
+    },
+}
