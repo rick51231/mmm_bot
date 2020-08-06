@@ -15,6 +15,7 @@ from django.db import IntegrityError
 settings = Settings.get()
 
 bot = TeleBot(settings.bot_id, threaded=False)
+bot.set_webhook()
 
 video_data = {"Бизнес": "https://www.youtube.com/embed/zUdVtDNQHvM",
               "Инвестиции": "https://www.youtube.com/embed/7I1gojBB4-o",
@@ -194,8 +195,8 @@ def step_3_ban(call):
     if referrer is not None:
         referrer.current_step = 3
         referrer.save()
-        text = 'Ваша заявка была отменена, проверьте ваш ID и отправьте заново'
-        bot.send_message(referrer.chat_id, text=text)
+        text = f'Ваша заявка была отменена, проверьте ваш ID и отправьте заново'
+        bot.send_message(referrer.chat_id, text=text, parse_mode="Markdown")
 
         chat_id = call.message.chat.id
         text = f'Заявка @{referrer.username} отклонена\n' \
@@ -217,7 +218,7 @@ def step_4_part(person):
     text = f'А сейчас посмотри презентацию, и сделай правильный шаг, который изменит твою жизнь' \
            f'[!]({video_data.get(person.select_video, video_data["Бизнес"])})'
     bot.send_message(chat_id, f'{text}', parse_mode="Markdown", reply_markup=inline_keyboard)
-    text = f"Ваша реферелка https://t.me/mlm_quiz_bot?start={person.system_id}"
+    text = f"Ваша реферелка {settings.ref_link}?start={person.system_id}"
     bot.send_message(chat_id, text)
 
 

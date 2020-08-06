@@ -35,6 +35,7 @@ class Video(models.Model):
 class Settings(models.Model):
     bot_id = models.CharField(max_length=128, verbose_name="ID бота", unique=True)
     bonus_link = models.CharField(max_length=1000, verbose_name="Ссылка на бонус", null=True, blank=True)
+    ref_link = models.CharField(max_length=1000, verbose_name='Реферальная ссылка')
 
     @classmethod
     def get(cls):
@@ -44,6 +45,9 @@ class Settings(models.Model):
         if not self.pk and Settings.objects.exists():
             raise ValidationError('There is can be only one Settings')
         return super(Settings, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return "Изменить настройки"
 
     class Meta:
         verbose_name = "Настройки"
