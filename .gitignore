@@ -4,4 +4,5 @@
 .idea
 .git
 video/*
+/core/production.env
 docker-compose-prod.yml
