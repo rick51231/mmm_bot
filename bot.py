@@ -205,7 +205,7 @@ def step_4_part(person):
 
     inline_keyboard = types.InlineKeyboardMarkup(row_width=1)
     inline_keyboard.add(types.InlineKeyboardButton(text='Получить бонус', url=f"{bonus_link}"), )
-    default_video = VIDEO_DATA_SELECT[VIDEO_DATA_SELECT.keys()[0]] if VIDEO_DATA_SELECT.keys() else ""
+    default_video = VIDEO_DATA_SELECT[list(VIDEO_DATA_SELECT.keys())[0]] if VIDEO_DATA_SELECT.keys() else ""
 
     text = f'{TEXT_STEP_4}' \
            f'[!]({VIDEO_DATA_SELECT.get(person.select_video, default_video)})'
