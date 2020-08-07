@@ -26,6 +26,8 @@ TEXT_STEP_1 = env.str("TEXT_STEP_1")
 TEXT_STEP_2 = env.str("TEXT_STEP_2")
 TEXT_STEP_4 = env.str("TEXT_STEP_4")
 
+REFERRAL_CLEAR_URL = env.str("REFERRAL_CLEAR_URL", default="")
+REFERRAL_ADD_URL = env.str("REFERRAL_ADD_URL", default="")
 ALLOWED_HOSTS = ['*']
 
 # Application definition

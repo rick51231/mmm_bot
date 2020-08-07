@@ -13,7 +13,7 @@ from django.utils import timezone
 from core.models import Person, Settings
 from django.db import IntegrityError
 from core.settings import VIDEO_DATA_SELECT, VIDEO_STEP_1, VIDEO_STEP_2, VIDEO_STEP_3, COMPANY_URL, TEXT_STEP_1, \
-    TEXT_STEP_2, TEXT_STEP_4
+    TEXT_STEP_2, TEXT_STEP_4, REFERRAL_CLEAR_URL, REFERRAL_ADD_URL
 from telebot import TeleBot, types
 
 settings = Settings.get()
@@ -97,7 +97,7 @@ def step_3(call):
     person.save()
     chat_id = call.message.chat.id
 
-    referral = f"{person.referrer.system_id}" if person.referrer else ""
+    referral = f"{REFERRAL_ADD_URL}{person.referrer.system_id}" if person.referrer else f"{REFERRAL_CLEAR_URL}"
     text = f'*Шаг 3*'
     bot.send_message(chat_id, text, parse_mode='Markdown')
 
