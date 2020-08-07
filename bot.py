@@ -1,6 +1,7 @@
 import os
 import re
 import time
+import traceback
 
 from django import setup
 
@@ -220,5 +221,6 @@ if __name__ == '__main__':
             bot.polling(none_stop=True)
 
         except Exception as e:
+            traceback.print_exc()
             print(e)
             time.sleep(5)
