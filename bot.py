@@ -97,7 +97,7 @@ def step_3(call):
     person.save()
     chat_id = call.message.chat.id
 
-    referral = f"{person.referrer.system_id}/" if person.referrer else ""
+    referral = f"{person.referrer.system_id}" if person.referrer else ""
     text = f'*Шаг 3*'
     bot.send_message(chat_id, text, parse_mode='Markdown')
 
