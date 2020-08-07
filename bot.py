@@ -40,6 +40,7 @@ def start(message):
         person.referrer = referrer
     person.chat_id = message.chat.id
     person.current_step = 0
+    person.date_finish_task = timezone.now()
     person.save()
 
     inline_keyboard = types.InlineKeyboardMarkup(row_width=1)
@@ -197,7 +198,6 @@ def step_3_ban(call):
 def step_4_part(person):
     chat_id = person.chat_id
     person.current_step = 5
-    person.date_finish_task = timezone.now()
     person.save()
     bonus_link = settings.bonus_link or '' if settings else ''
     text = f'*Шаг 4*'
