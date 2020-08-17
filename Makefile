@@ -52,3 +52,6 @@ gen_cert:
 
 log_nginx:
 	docker exec -it ${WEB_CONTAINER_NAME} tail -f /var/log/nginx/*
+
+cert:
+	docker exec -it ${WEB_CONTAINER_NAME} python certificate.py
