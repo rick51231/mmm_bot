@@ -57,6 +57,7 @@ class Settings(models.Model):
     def save(self, *args, **kwargs):
         bot = TeleBot(self.bot_id, threaded=False)
         bot.set_webhook(url=f"{WEBHOOK_HOST}:{WEBHOOK_PORT}/bot/{self.bot_id}/")
+        self.username = bot.get_me().username
         return super(Settings, self).save(*args, **kwargs)
 
     def __str__(self):
