@@ -1,8 +1,5 @@
 import os
 import re
-import time
-import traceback
-
 from django import setup
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
@@ -12,9 +9,9 @@ setup()
 from django.utils import timezone
 from core.models import Person, Settings
 from django.db import IntegrityError
-from core.settings import VIDEO_DATA_SELECT, VIDEO_STEP_1, VIDEO_STEP_2, VIDEO_STEP_3, COMPANY_URL, TEXT_STEP_1, \
-    TEXT_STEP_2, TEXT_STEP_3, REFERRAL_CLEAR_URL, REFERRAL_ADD_URL, WEBHOOK_URL, TEXT_STEP_4_PART_2, TEXT_STEP_4_PART_1, \
-    VIDEO_STEP_4
+from core.settings import VIDEO_DATA_SELECT, VIDEO_STEP_1, VIDEO_STEP_2, VIDEO_STEP_4, COMPANY_URL, TEXT_STEP_1, \
+    TEXT_STEP_2, TEXT_STEP_3, REFERRAL_CLEAR_URL, REFERRAL_ADD_URL, WEBHOOK_PORT, WEBHOOK_HOST, TEXT_STEP_4_PART_2, \
+    TEXT_STEP_4_PART_1
 from telebot import TeleBot, types
 
 settings = Settings.objects.all()
@@ -22,7 +19,7 @@ global bot
 
 for setting in settings:
     bot = TeleBot(settings.bot_id, threaded=False)
-    bot.set_webhook(url=f"{WEBHOOK_URL}/{settings.bot_id}/")
+    bot.set_webhook(url=f"{WEBHOOK_HOST}:{WEBHOOK_PORT}/{settings.bot_id}/")
 
 
 def referral_id(text):

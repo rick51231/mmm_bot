@@ -52,8 +52,8 @@ class Settings(models.Model):
 
     def save(self, *args, **kwargs):
         from bot import bot
-        if not self.pk and Settings.objects.exists():
-            raise ValidationError('There is can be only one Settings')
+        # if not self.pk and Settings.objects.exists():
+        #     raise ValidationError('There is can be only one Settings')
         bot.token = self.bot_id
         bot.set_webhook(url=f"{WEBHOOK_URL}/bot/{self.bot_id}/")
         return super(Settings, self).save(*args, **kwargs)
