@@ -1,7 +1,5 @@
 import subprocess
 
-from django.contrib import messages
-
 from core.settings import WEBHOOK_HOST, BASE_DIR
 
 command_str = ['/code/certificate/acme.sh',
