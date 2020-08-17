@@ -15,10 +15,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from django.views.decorators.csrf import csrf_exempt
+
 from core.views import HomeView, BotView
 
 urlpatterns = [
     path('', admin.site.urls),
-    path('bot/', BotView.as_view()),
+    path('bot/<str:token>/', csrf_exempt(BotView.as_view())),
 
 ]

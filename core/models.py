@@ -1,6 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import FileField
+from core.settings import WEBHOOK_URL
 
 
 class Person(models.Model):
@@ -25,6 +26,13 @@ class Person(models.Model):
         verbose_name = "Пользователь"
         verbose_name_plural = "Пользователи"
 
+    @classmethod
+    def update_status(cls, telegram_id, current_step):
+        obj, _ = cls.objects.get_or_create(telegram_id=telegram_id)
+        obj.current_step = current_step
+        obj.save()
+        return obj
+
 
 class Video(models.Model):
     video = FileField(verbose_name="Файл")
@@ -43,8 +51,11 @@ class Settings(models.Model):
         return cls._default_manager.all().first()
 
     def save(self, *args, **kwargs):
+        from bot import bot
         if not self.pk and Settings.objects.exists():
             raise ValidationError('There is can be only one Settings')
+        bot.token = self.bot_id
+        bot.set_webhook(url=f"{WEBHOOK_URL}/bot/{self.bot_id}/")
         return super(Settings, self).save(*args, **kwargs)
 
     def __str__(self):

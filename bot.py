@@ -13,13 +13,16 @@ from django.utils import timezone
 from core.models import Person, Settings
 from django.db import IntegrityError
 from core.settings import VIDEO_DATA_SELECT, VIDEO_STEP_1, VIDEO_STEP_2, VIDEO_STEP_3, COMPANY_URL, TEXT_STEP_1, \
-    TEXT_STEP_2, TEXT_STEP_4, REFERRAL_CLEAR_URL, REFERRAL_ADD_URL
+    TEXT_STEP_2, TEXT_STEP_3, REFERRAL_CLEAR_URL, REFERRAL_ADD_URL, WEBHOOK_URL, TEXT_STEP_4_PART_2, TEXT_STEP_4_PART_1, \
+    VIDEO_STEP_4
 from telebot import TeleBot, types
 
-settings = Settings.get()
+settings = Settings.objects.all()
+global bot
 
-bot = TeleBot(settings.bot_id, threaded=False)
-bot.set_webhook()
+for setting in settings:
+    bot = TeleBot(settings.bot_id, threaded=False)
+    bot.set_webhook(url=f"{WEBHOOK_URL}/{settings.bot_id}/")
 
 
 def referral_id(text):
@@ -73,9 +76,7 @@ def step_1(call):
 
 @bot.callback_query_handler(func=lambda call: call.data == 'step_2')
 def step_2(call):
-    person, _ = Person.objects.get_or_create(telegram_id=call.from_user.id)
-    person.current_step = 2
-    person.save()
+    Person.update_status(call.from_user.id, 2)
     chat_id = call.message.chat.id
     text = f'*Шаг 2*'
     bot.send_message(chat_id, text, parse_mode='Markdown')
@@ -92,13 +93,33 @@ def step_2(call):
 
 @bot.callback_query_handler(func=lambda call: call.data == 'step_3')
 def step_3(call):
+    person = Person.update_status(call.from_user.id, 3)
+    chat_id = call.message.chat.id
+
+    text = f'*Шаг 3*'
+    bot.send_message(chat_id, text, parse_mode='Markdown')
+
+    inline_keyboard = types.InlineKeyboardMarkup(row_width=1)
+    inline_keyboard.add(
+        types.InlineKeyboardButton(text='Перейти к "Шаг 4"',
+                                   callback_data="step_4"),
+    )
+    default_video = VIDEO_DATA_SELECT[list(VIDEO_DATA_SELECT.keys())[0]] if VIDEO_DATA_SELECT.keys() else ""
+
+    text = f'{TEXT_STEP_3}' \
+           f'[!]({VIDEO_DATA_SELECT.get(person.select_video, default_video)})'
+    bot.send_message(chat_id, f'{text}', parse_mode="Markdown", reply_markup=inline_keyboard)
+
+
+@bot.callback_query_handler(func=lambda call: call.data == 'step_4')
+def step_4(call):
     person, _ = Person.objects.get_or_create(telegram_id=call.from_user.id)
-    person.current_step = 3
+    person.current_step = 4
     person.save()
     chat_id = call.message.chat.id
 
     referral = f"{REFERRAL_ADD_URL}{person.referrer.system_id}" if person.referrer else f"{REFERRAL_CLEAR_URL}"
-    text = f'*Шаг 3*'
+    text = f'*Шаг 4*'
     bot.send_message(chat_id, text, parse_mode='Markdown')
 
     inline_keyboard = types.InlineKeyboardMarkup(row_width=1)
@@ -107,18 +128,18 @@ def step_3(call):
                                    callback_data="bonus",
                                    url=f"{COMPANY_URL}{referral}"),
     )
-    text = f'Остался последний шаг, свяжись со своим куратором' \
-           f'[.]({VIDEO_STEP_3})'
+    text = f'{TEXT_STEP_4_PART_1}' \
+           f'[.]({VIDEO_STEP_4})'
     bot.send_message(chat_id, f'{text}', parse_mode="Markdown", reply_markup=inline_keyboard)
 
-    text = 'Не забудь отправить свой ID для перехода к "Шаг 4"'
+    text = f'{TEXT_STEP_4_PART_2}'
     bot.send_message(chat_id, f'{text}', parse_mode="Markdown")
 
 
 @bot.message_handler(content_types=["text"])
 def repeat_all_messages(message):
     person, _ = Person.objects.get_or_create(telegram_id=message.from_user.id)
-    if person.current_step == 3:
+    if person.current_step == 4:
         person.system_id = message.text
         try:
             person.save()
@@ -162,7 +183,7 @@ def step_3_confirm(call):
         text = 'Ожидайте подтверждения от вашего куратора'
         bot.edit_message_text(text, chat_id=chat_id, message_id=call.message.message_id)
     else:
-        step_4_part(person)
+        bonus(person)
 
 
 @bot.callback_query_handler(func=lambda call: re.search(r'step_3_accept_\w+', call.data))
@@ -171,7 +192,7 @@ def step_3_accept(call):
     person, _ = Person.objects.get_or_create(telegram_id=call.from_user.id)
     referrer = person.referral_users.filter(telegram_id=referrer_id).first()
     if referrer is not None:
-        step_4_part(referrer)
+        bonus(referrer)
 
         chat_id = call.message.chat.id
         text = f'Заявка @{referrer.username} принята\n' \
@@ -196,31 +217,18 @@ def step_3_ban(call):
         bot.edit_message_text(text, chat_id=chat_id, message_id=call.message.message_id)
 
 
-def step_4_part(person):
+def bonus(person):
     chat_id = person.chat_id
     person.current_step = 5
     person.save()
-    bonus_link = settings.bonus_link or '' if settings else ''
-    text = f'*Шаг 4*'
+    text = f'*Подарок*'
     bot.send_message(chat_id, text, parse_mode='Markdown')
 
+    bonus_link = settings.bonus_link or '' if settings else ''
     inline_keyboard = types.InlineKeyboardMarkup(row_width=1)
     inline_keyboard.add(types.InlineKeyboardButton(text='Получить бонус', url=f"{bonus_link}"), )
-    default_video = VIDEO_DATA_SELECT[list(VIDEO_DATA_SELECT.keys())[0]] if VIDEO_DATA_SELECT.keys() else ""
-
-    text = f'{TEXT_STEP_4}' \
-           f'[!]({VIDEO_DATA_SELECT.get(person.select_video, default_video)})'
-    bot.send_message(chat_id, f'{text}', parse_mode="Markdown", reply_markup=inline_keyboard)
-    text = f"Пригласи друга: {settings.ref_link}?start={person.system_id}"
+    text = f'«Где взять деньги, если их нет!»'
     bot.send_message(chat_id, text)
 
-
-if __name__ == '__main__':
-    while True:
-        try:
-            bot.polling(none_stop=True)
-
-        except Exception as e:
-            traceback.print_exc()
-            print(e)
-            time.sleep(5)
+    text = f"Пригласи друга: {settings.ref_link}?start={person.system_id}"
+    bot.send_message(chat_id, text)
