@@ -18,7 +18,8 @@ class HomeView(View):
 class BotView(CheckTokenMiddleware, View):
 
     def post(self, request, **kwargs):
-        bot = TeleBot()
+        bot = TeleBot(kwargs.get("token"), threaded=False)
+        set_bot_logic(bot)
         data = json.loads(self.request.body)
         update = telebot.types.Update.de_json(data)
         bot.process_new_updates([update])

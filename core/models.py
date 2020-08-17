@@ -1,7 +1,9 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import FileField
-from core.settings import WEBHOOK_URL
+from telebot import TeleBot
+
+from core.settings import WEBHOOK_HOST, WEBHOOK_PORT
 
 
 class Person(models.Model):
@@ -42,24 +44,23 @@ class Video(models.Model):
 
 
 class Settings(models.Model):
+    name = models.CharField(verbose_name="Название", max_length=1000, default="Без имени", blank=True)
     bot_id = models.CharField(max_length=128, verbose_name="ID бота", unique=True)
     bonus_link = models.CharField(max_length=1000, verbose_name="Ссылка на бонус", null=True, blank=True)
-    ref_link = models.CharField(max_length=1000, verbose_name='Реферальная ссылка')
+    ref_link = models.CharField(max_length=1000, verbose_name='Реферальная ссылка', default="", blank=True)
+    username = models.CharField(max_length=1000, default="", blank=True)
 
     @classmethod
     def get(cls):
         return cls._default_manager.all().first()
 
     def save(self, *args, **kwargs):
-        from bot import bot
-        # if not self.pk and Settings.objects.exists():
-        #     raise ValidationError('There is can be only one Settings')
-        bot.token = self.bot_id
-        bot.set_webhook(url=f"{WEBHOOK_URL}/bot/{self.bot_id}/")
+        bot = TeleBot(self.bot_id, threaded=False)
+        bot.set_webhook(url=f"{WEBHOOK_HOST}:{WEBHOOK_PORT}/bot/{self.bot_id}/")
         return super(Settings, self).save(*args, **kwargs)
 
     def __str__(self):
-        return "Изменить настройки"
+        return f"@{self.username or self.name}"
 
     class Meta:
         verbose_name = "Настройки"
