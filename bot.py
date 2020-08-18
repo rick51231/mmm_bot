@@ -29,18 +29,17 @@ except:
 
 def bonus(bot, person):
     chat_id = person.chat_id
+    bot_setting = Settings.objects.filter(bot_id=bot.token).first()
     person.current_step = 5
     person.save()
     text = f'*Подарок*'
     bot.send_message(chat_id, text, parse_mode='Markdown')
-
-    bonus_link = settings.bonus_link or '' if settings else ''
+    bonus_link = bot_setting.bonus_link or '' if bot_setting else ''
     inline_keyboard = types.InlineKeyboardMarkup(row_width=1)
     inline_keyboard.add(types.InlineKeyboardButton(text='Получить бонус', url=f"{bonus_link}"), )
-    text = f'«Где взять деньги, если их нет!»'
+    text = f'"Где взять деньги, если их нет!"'
     bot.send_message(chat_id, text)
-
-    text = f"Пригласи друга: {settings.ref_link}?start={person.system_id}"
+    text = f"Пригласи друга: t.me/{bot.get_me().username}?start={person.system_id}"
     bot.send_message(chat_id, text)
 
 
@@ -80,6 +79,7 @@ def set_bot_logic(bot):
         person, _ = Person.objects.get_or_create(telegram_id=call.from_user.id)
         person.current_step = 1
         person.select_video = call.data
+        person.chat_id = call.message.chat.id
         person.save()
         chat_id = call.message.chat.id
         inline_keyboard = types.InlineKeyboardMarkup(row_width=1)
@@ -218,7 +218,7 @@ def set_bot_logic(bot):
         person, _ = Person.objects.get_or_create(telegram_id=call.from_user.id)
         referrer = person.referral_users.filter(telegram_id=referrer_id).first()
         if referrer is not None:
-            referrer.current_step = 3
+            referrer.current_step = 4
             referrer.save()
             text = f'Ваша заявка была отменена, проверьте ваш ID и отправьте заново'
             bot.send_message(referrer.chat_id, text=text, parse_mode="Markdown")
