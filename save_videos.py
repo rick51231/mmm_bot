@@ -16,6 +16,9 @@ link = [
     # "youtube.com/embed/v_oXt6vBbyU",
     # "youtube.com/embed/EhB__Cmmc-w",
     # "https://www.youtube.com/watch?v=VVHIDJGG7dE&feature=emb_logo"
+    # "https://www.youtube.com/embed/hBRbirj_FrU"
+    "https://www.youtube.com/embed/nOc8r4IAGgo",
+    "https://www.youtube.com/embed/V1yyCTEYFMU"
 
 ]
 for i in link:

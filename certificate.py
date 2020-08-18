@@ -11,9 +11,9 @@ command_str = ['/code/certificate/acme.sh',
                f'-d',
                f'www.{WEBHOOK_HOST}',
                f"--key-file",
-               f"{BASE_DIR}/certificate/{WEBHOOK_HOST}-key.pem",
+               f"{BASE_DIR}/certificate/certificate-key.pem",
                f"--fullchain-file",
-               f"{BASE_DIR}/certificate/{WEBHOOK_HOST}-cert.pem"]
+               f"{BASE_DIR}/certificate/certificate-cert.pem"]
 print(' '.join(command_str))
 command = subprocess.Popen(command_str, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                            stderr=subprocess.PIPE, text=True)
