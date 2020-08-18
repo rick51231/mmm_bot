@@ -7,3 +7,5 @@ video/*
 /core/production.env
 docker-compose-prod.yml
 etc/nginx.conf
+./save_videos.py
+src/scripts/generate.sh
