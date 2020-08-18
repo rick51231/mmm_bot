@@ -3,7 +3,7 @@ ENV PYTHONUNBUFFERED 1
 RUN mkdir /code
 WORKDIR /code
 RUN apt clean && rm -rf /var/lib/apt/lists/* &&  apt update
-RUN apt-get install -y cron curl socat openssl tar tzdata gcc nginx
+RUN apt-get install -y cron curl socat openssl tar tzdata gcc nginx gettext-base
 
 
 COPY requirements.txt /code/
