@@ -1,1 +1,1 @@
-envsubst < /etc/nginx/conf.d/nginx.conf.template > nginx.conf
+envsubst < /etc/nginx/conf.d/nginx.conf.template > /etc/nginx/conf.d/nginx.conf
