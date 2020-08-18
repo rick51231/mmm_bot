@@ -8,12 +8,12 @@ server {
 
   listen 80;
   listen [::]:80;
-  server_name  $ENV{"WEBHOOK_HOST"};
+  server_name  ${WEBHOOK_HOST};
   return 301 https://$host$request_uri;
 }
 
 server {
-    server_name $ENV{"WEBHOOK_HOST"};
+    server_name ${WEBHOOK_HOST};
 
     location / {
         try_files $uri @proxy_to_app;

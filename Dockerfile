@@ -8,3 +8,4 @@ RUN apt-get install -y cron curl socat openssl tar tzdata gcc nginx
 
 COPY requirements.txt /code/
 RUN pip install -r requirements.txt
+RUN /bin/sh -c envsubst '$USER_NAME $PASSWORD $KEY' < /nginx.conf.template > /etc/nginx/nginx.conf && exec nginx -g 'daemon off;'"]
