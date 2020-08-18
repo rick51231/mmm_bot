@@ -1,4 +1,10 @@
+upstream base_server {
+    server mlm-bot-web:8020;
+}
+
+
 server {
+  server_name $webhook_host;
 
   listen 80;
   listen [::]:80;
@@ -47,3 +53,4 @@ server {
     listen 443 ssl;
     listen [::]:443 ssl;
 }
+
