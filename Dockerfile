@@ -3,6 +3,6 @@ ENV PYTHONUNBUFFERED 1
 RUN mkdir /code
 WORKDIR /code
 RUN apt clean && rm -rf /var/lib/apt/lists/* &&  apt update
-RUN apt-get install -y cron nginx curl socat openssl tar tzdata gcc
+RUN apt-get install -y cron nginx curl socat openssl tar tzdata gcc nginx-extras
 COPY requirements.txt /code/
 RUN pip install -r requirements.txt
