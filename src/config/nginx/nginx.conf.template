@@ -7,24 +7,24 @@ server {
   listen 80;
   listen [::]:80;
   server_name  ${WEBHOOK_HOST};
-  return 301 https://\$host\$request_uri;
+  return 301 https://$host$request_uri;
 }
 
 server {
     server_name ${WEBHOOK_HOST};
 
     location / {
-        try_files \$uri @proxy_to_app;
+        try_files $uri @proxy_to_app;
     }
 
     include /etc/nginx/conf.d/certificate/certificate.*;
 
     location @proxy_to_app {
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
-        proxy_set_header Host \$http_host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Host $http_host;
         proxy_redirect off;
-        add_header Last-Modified \$date_gmt;
+        add_header Last-Modified $date_gmt;
         add_header Cache-Control 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0';
         if_modified_since off;
         expires off;
