@@ -1,90 +1,49 @@
+server {
 
-user  nginx;
-worker_processes  1;
-
-error_log  /var/log/nginx/error.log warn;
-pid        /var/run/nginx.pid;
-
-
-events {
-    worker_connections  1024;
+  listen 80;
+  listen [::]:80;
+  server_name  ${WEBHOOK_HOST};
+  return 301 https://$host$request_uri;
 }
 
+server {
+    server_name ${WEBHOOK_HOST};
 
-http {
-    include       /etc/nginx/mime.types;
-    default_type  application/octet-stream;
+    location / {
+        try_files $uri @proxy_to_app;
+    }
 
-    access_log  /var/log/nginx/access.log  main;
+    include /etc/nginx/conf.d/certificate/certificate.*;
 
-    sendfile        on;
-    #tcp_nopush     on;
-
-    keepalive_timeout  65;
-
-    #gzip  on;
-
-    include /etc/nginx/conf.d/*.conf;
-
-    proxy_connect_timeout       600;
-    proxy_send_timeout          600;
-    proxy_read_timeout          600;
-    send_timeout                600;
-    client_max_body_size        0;
-
-    upstream base_server {
-        server mlm-bot-web:8020;
+    location @proxy_to_app {
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Host $http_host;
+        proxy_redirect off;
+        add_header Last-Modified $date_gmt;
+        add_header Cache-Control 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0';
+        if_modified_since off;
+        expires off;
+        etag off;
+        proxy_no_cache 1;
+        proxy_cache_bypass 1;
+        proxy_pass http://base_server;
     }
 
 
-    server {
-
-      listen 80;
-      listen [::]:80;
-      server_name  ${WEBHOOK_HOST};
-      return 301 https://$host$request_uri;
+    location /static/ {
+        autoindex on;
+        alias /var/www/static/;
+        add_header Cache-Control no-cache;
     }
 
-    server {
-        server_name ${WEBHOOK_HOST};
 
-        location / {
-            try_files $uri @proxy_to_app;
-        }
-
-        include /etc/nginx/conf.d/certificate/certificate.*;
-
-        location @proxy_to_app {
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-            proxy_set_header Host $http_host;
-            proxy_redirect off;
-            add_header Last-Modified $date_gmt;
-            add_header Cache-Control 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0';
-            if_modified_since off;
-            expires off;
-            etag off;
-            proxy_no_cache 1;
-            proxy_cache_bypass 1;
-            proxy_pass http://base_server;
-        }
-
-
-        location /static/ {
-            autoindex on;
-            alias /var/www/static/;
-            add_header Cache-Control no-cache;
-        }
-
-
-        location /media/ {
-            autoindex on;
-            alias /var/www/media/;
-            add_header Cache-Control no-cache;
-        }
-
-        listen 443 ssl;
-        listen [::]:443 ssl;
+    location /media/ {
+        autoindex on;
+        alias /var/www/media/;
+        add_header Cache-Control no-cache;
     }
 
+    listen 443 ssl;
+    listen [::]:443 ssl;
 }
