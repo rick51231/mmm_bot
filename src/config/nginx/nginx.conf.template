@@ -4,8 +4,6 @@ upstream base_server {
 
 
 server {
-  server_name $webhook_host;
-
   listen 80;
   listen [::]:80;
   server_name  ${WEBHOOK_HOST};
