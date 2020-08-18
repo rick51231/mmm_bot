@@ -27,6 +27,23 @@ except:
     traceback.print_exc()
 
 
+def bonus(bot, person):
+    chat_id = person.chat_id
+    person.current_step = 5
+    person.save()
+    text = f'*Подарок*'
+    bot.send_message(chat_id, text, parse_mode='Markdown')
+
+    bonus_link = settings.bonus_link or '' if settings else ''
+    inline_keyboard = types.InlineKeyboardMarkup(row_width=1)
+    inline_keyboard.add(types.InlineKeyboardButton(text='Получить бонус', url=f"{bonus_link}"), )
+    text = f'«Где взять деньги, если их нет!»'
+    bot.send_message(chat_id, text)
+
+    text = f"Пригласи друга: {settings.ref_link}?start={person.system_id}"
+    bot.send_message(chat_id, text)
+
+
 def referral_id(text):
     return text.split()[1] if len(text.split()) > 1 else None
 
@@ -180,7 +197,7 @@ def set_bot_logic(bot):
             text = 'Ожидайте подтверждения от вашего куратора'
             bot.edit_message_text(text, chat_id=chat_id, message_id=call.message.message_id)
         else:
-            bonus(person)
+            bonus(bot, person)
 
     @bot.callback_query_handler(func=lambda call: re.search(r'step_3_accept_\w+', call.data))
     def step_3_accept(call):
@@ -188,7 +205,7 @@ def set_bot_logic(bot):
         person, _ = Person.objects.get_or_create(telegram_id=call.from_user.id)
         referrer = person.referral_users.filter(telegram_id=referrer_id).first()
         if referrer is not None:
-            bonus(referrer)
+            bonus(bot, referrer)
 
             chat_id = call.message.chat.id
             text = f'Заявка @{referrer.username} принята\n' \
@@ -210,19 +227,3 @@ def set_bot_logic(bot):
             text = f'Заявка @{referrer.username} отклонена\n' \
                    f'ID: {referrer.system_id}'
             bot.edit_message_text(text, chat_id=chat_id, message_id=call.message.message_id)
-
-    def bonus(person):
-        chat_id = person.chat_id
-        person.current_step = 5
-        person.save()
-        text = f'*Подарок*'
-        bot.send_message(chat_id, text, parse_mode='Markdown')
-
-        bonus_link = settings.bonus_link or '' if settings else ''
-        inline_keyboard = types.InlineKeyboardMarkup(row_width=1)
-        inline_keyboard.add(types.InlineKeyboardButton(text='Получить бонус', url=f"{bonus_link}"), )
-        text = f'«Где взять деньги, если их нет!»'
-        bot.send_message(chat_id, text)
-
-        text = f"Пригласи друга: {settings.ref_link}?start={person.system_id}"
-        bot.send_message(chat_id, text)
