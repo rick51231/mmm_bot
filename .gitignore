@@ -6,3 +6,4 @@
 video/*
 /core/production.env
 docker-compose-prod.yml
+etc/nginx.conf
