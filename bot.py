@@ -38,7 +38,7 @@ def bonus(bot, person):
     inline_keyboard = types.InlineKeyboardMarkup(row_width=1)
     inline_keyboard.add(types.InlineKeyboardButton(text='Получить бонус', url=f"{bonus_link}"), )
     text = f'"Где взять деньги, если их нет!"'
-    bot.send_message(chat_id, text)
+    bot.send_message(chat_id, text, reply_markup=inline_keyboard)
     text = f"Пригласи друга: t.me/{bot.get_me().username}?start={person.system_id}"
     bot.send_message(chat_id, text)
 
