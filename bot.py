@@ -12,7 +12,7 @@ from core.models import Person, Settings
 from django.db import IntegrityError
 from core.settings import VIDEO_DATA_SELECT, VIDEO_STEP_1, VIDEO_STEP_2, VIDEO_STEP_4, COMPANY_URL, TEXT_STEP_1, \
     TEXT_STEP_2, TEXT_STEP_3, REFERRAL_CLEAR_URL, REFERRAL_ADD_URL, WEBHOOK_HOST, TEXT_STEP_4_PART_2, \
-    TEXT_STEP_4_PART_1
+    TEXT_STEP_4_PART_1, BASE_DIR
 from telebot import TeleBot, types
 
 try:
@@ -37,8 +37,8 @@ def bonus(bot, person):
     bonus_link = bot_setting.bonus_link or '' if bot_setting else ''
     inline_keyboard = types.InlineKeyboardMarkup(row_width=1)
     inline_keyboard.add(types.InlineKeyboardButton(text='Получить бонус', url=f"{bonus_link}"), )
-    text = f'"Где взять деньги, если их нет!"'
-    bot.send_message(chat_id, text, reply_markup=inline_keyboard)
+    img = open(f"{BASE_DIR}/static/money.jpg", 'rb')
+    bot.send_photo(chat_id, img, caption=f'"Где взять деньги, если их нет!"')
     text = f"Пригласи друга: t.me/{bot.get_me().username}?start={person.system_id}"
     bot.send_message(chat_id, text)
 
