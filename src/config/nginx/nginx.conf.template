@@ -11,7 +11,7 @@ server {
 }
 
 server {
-    server_name ${WEBHOOK_HOST};
+    server_name ${WEBHOOK_HOST} www.${WEBHOOK_HOST};
 
     location / {
         try_files $uri @proxy_to_app;
