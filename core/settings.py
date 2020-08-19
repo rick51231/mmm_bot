@@ -11,7 +11,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CONFIG_DIR = os.path.dirname(os.path.abspath(__file__))
 environ.Env.read_env(get_settings_path(CONFIG_DIR, ('production.env', 'sandbox.env', 'local.env')))
 WEBHOOK_HOST = env.str('WEBHOOK_HOST')
-WEBHOOK_PORT = env.str('WEBHOOK_PORT')
 
 SECRET_KEY = env('SECRET_KEY')
 CF_EMAIL = env.str('CF_Email', default="")

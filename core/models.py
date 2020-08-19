@@ -3,7 +3,7 @@ from django.db import models
 from django.db.models import FileField
 from telebot import TeleBot
 
-from core.settings import WEBHOOK_HOST, WEBHOOK_PORT
+from core.settings import WEBHOOK_HOST
 
 
 class Person(models.Model):
@@ -56,7 +56,7 @@ class Settings(models.Model):
 
     def save(self, *args, **kwargs):
         bot = TeleBot(self.bot_id, threaded=False)
-        bot.set_webhook(url=f"{WEBHOOK_HOST}:{WEBHOOK_PORT}/bot/{self.bot_id}/")
+        bot.set_webhook(url=f"https://{WEBHOOK_HOST}/bot/{self.bot_id}/")
         self.username = bot.get_me().username
         return super(Settings, self).save(*args, **kwargs)
 
