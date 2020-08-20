@@ -34,7 +34,7 @@ def bonus(bot, person):
     person.save()
     bonus_link = bot_setting.bonus_link or '' if bot_setting else ''
     inline_keyboard = types.InlineKeyboardMarkup(row_width=1)
-    inline_keyboard.add(types.InlineKeyboardButton(text='Получить бонус', url=f"{bonus_link}"), )
+    inline_keyboard.add(types.InlineKeyboardButton(text='ЗАБРАТЬ ПОДАРОК', url=f"{bonus_link}"), )
     text = f'*Подарок*'
     bot.send_message(chat_id, text, parse_mode='Markdown')
     img = open(f"{BASE_DIR}/static/money.jpg", 'rb')
