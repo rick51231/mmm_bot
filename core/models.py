@@ -70,7 +70,7 @@ class Settings(models.Model):
 
 class MessagePastFinish(models.Model):
     text = models.TextField(verbose_name="Текст сообщения")
-    video = models.TextField(verbose_name="Ссылка на видео")
+    video = models.TextField(verbose_name="Ссылка на видео", default="", blank=True)
 
     minute = models.IntegerField(verbose_name="Минут", default=0)
     hours = models.IntegerField(verbose_name="Часов", default=0)

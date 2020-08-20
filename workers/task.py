@@ -25,7 +25,8 @@ def send_notification_users():
 
                     if time_passed > difference_time and person not in past_message.sending.all():
                         try:
-                            bot.send_message(person.chat_id, f"[Видео]({past_message.video})", parse_mode='Markdown')
+                            if past_message.video:
+                                bot.send_message(person.chat_id, f"[Видео]({past_message.video})", parse_mode='Markdown')
                             bot.send_message(person.chat_id, f"{past_message.text}\n", disable_web_page_preview=True)
                         except Exception as error:
                             print(error)
