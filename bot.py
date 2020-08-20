@@ -212,7 +212,7 @@ def set_bot_logic(bot):
         person, _ = Person.objects.get_or_create(telegram_id=call.from_user.id, bot=bot_setting)
         referrer = person.referral_users.filter(telegram_id=referrer_id, bot=bot_setting).first()
         if referrer is not None:
-            bonus(bot, person, bot_setting)
+            bonus(bot, referrer, bot_setting)
 
             chat_id = call.message.chat.id
             text = f'Заявка @{referrer.username} принята\n' \
