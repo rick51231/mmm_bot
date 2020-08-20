@@ -220,7 +220,8 @@ def set_bot_logic(bot):
         if referrer is not None:
             referrer.current_step = 4
             referrer.save()
-            text = f'Ваша заявка была отменена, проверьте ваш ID и отправьте заново'
+            text = f'Я не нашёл ваш ID у себя в системе. Зарегистрируйтесь по моей ссылке в «Шаг 4», нажав кнопку ' \
+                   f'“Попробовать бесплатно“. Затем отправьте в боте свой id и я открою доступ.'
             bot.send_message(referrer.chat_id, text=text, parse_mode="Markdown")
 
             chat_id = call.message.chat.id
