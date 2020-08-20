@@ -6,43 +6,6 @@ from telebot import TeleBot
 from core.settings import WEBHOOK_HOST
 
 
-class Person(models.Model):
-    telegram_id = models.CharField(verbose_name="Telegram id", max_length=128, unique=True)
-    system_id = models.CharField(verbose_name="ID в системе", max_length=128, null=True, blank=True)
-    chat_id = models.CharField(verbose_name="ID чата", max_length=256, null=True, blank=True)
-    referrer = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True,
-                                 related_name="referral_users", verbose_name="Куратор")
-    first_name = models.CharField(verbose_name="Имя", max_length=128, null=True, blank=True)
-    last_name = models.CharField(verbose_name="Фамилия", max_length=128, null=True, blank=True)
-    username = models.CharField(verbose_name="Username", max_length=128, null=True, blank=True)
-    select_video = models.CharField("Выбранное видео", max_length=256, null=True, blank=True)
-    current_step = models.IntegerField("Текущий шаг", default=0)
-    date_creation = models.DateTimeField(verbose_name='Дата и время создания', auto_now_add=True)
-    date_updated = models.DateTimeField(verbose_name='Дата и время последнего изменения', auto_now=True)
-    date_finish_task = models.DateTimeField(verbose_name='Дата и время окончания теста', null=True, blank=True)
-
-    def __str__(self):
-        return f"{self.telegram_id} {self.first_name} {self.last_name} {self.username}"
-
-    class Meta:
-        verbose_name = "Пользователь"
-        verbose_name_plural = "Пользователи"
-
-    @classmethod
-    def update_status(cls, telegram_id, current_step):
-        obj, _ = cls.objects.get_or_create(telegram_id=telegram_id)
-        obj.current_step = current_step
-        obj.save()
-        return obj
-
-
-class Video(models.Model):
-    video = FileField(verbose_name="Файл")
-    telegram_id = models.CharField("ID в телеграмме", max_length=256, null=True, blank=True)
-    file_id = models.IntegerField(verbose_name="id файла", null=True, blank=True)
-    name = models.CharField("Имя файла", max_length=256, null=True, blank=True)
-
-
 class Settings(models.Model):
     name = models.CharField(verbose_name="Название", max_length=1000, default="Без имени", blank=True)
     bot_id = models.CharField(max_length=128, verbose_name="ID бота", unique=True)
@@ -64,8 +27,46 @@ class Settings(models.Model):
         return f"@{self.username or self.name}"
 
     class Meta:
-        verbose_name = "Настройки"
-        verbose_name_plural = "Настройки"
+        verbose_name = "Бот"
+        verbose_name_plural = "Боты"
+
+
+class Person(models.Model):
+    telegram_id = models.CharField(verbose_name="Telegram id", max_length=128)
+    system_id = models.CharField(verbose_name="ID в системе", max_length=128, null=True, blank=True)
+    chat_id = models.CharField(verbose_name="ID чата", max_length=256, null=True, blank=True)
+    referrer = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True,
+                                 related_name="referral_users", verbose_name="Куратор")
+    bot = models.ForeignKey(Settings, on_delete=models.SET_NULL, null=True, blank=True)
+    first_name = models.CharField(verbose_name="Имя", max_length=128, null=True, blank=True)
+    last_name = models.CharField(verbose_name="Фамилия", max_length=128, null=True, blank=True)
+    username = models.CharField(verbose_name="Username", max_length=128, null=True, blank=True)
+    select_video = models.CharField("Выбранное видео", max_length=256, null=True, blank=True)
+    current_step = models.IntegerField("Текущий шаг", default=0)
+    date_creation = models.DateTimeField(verbose_name='Дата и время создания', auto_now_add=True)
+    date_updated = models.DateTimeField(verbose_name='Дата и время последнего изменения', auto_now=True)
+    date_finish_task = models.DateTimeField(verbose_name='Дата и время окончания теста', null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.telegram_id} {self.first_name} {self.last_name} {self.username} {self.bot}"
+
+    class Meta:
+        verbose_name = "Пользователь"
+        verbose_name_plural = "Пользователи"
+
+    @classmethod
+    def update_status(cls, telegram_id, bot, current_step):
+        obj, _ = cls.objects.get_or_create(telegram_id=telegram_id, bot=bot)
+        obj.current_step = current_step
+        obj.save()
+        return obj
+
+
+class Video(models.Model):
+    video = FileField(verbose_name="Файл")
+    telegram_id = models.CharField("ID в телеграмме", max_length=256, null=True, blank=True)
+    file_id = models.IntegerField(verbose_name="id файла", null=True, blank=True)
+    name = models.CharField("Имя файла", max_length=256, null=True, blank=True)
 
 
 class MessagePastFinish(models.Model):
