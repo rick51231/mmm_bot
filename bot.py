@@ -113,7 +113,7 @@ def set_bot_logic(bot):
     @bot.callback_query_handler(func=lambda call: call.data == 'step_3')
     def step_3(call):
         bot_setting, _ = Settings.objects.get_or_create(bot_id=bot.token)
-        person = Person.update_status(call.from_user.id, 3, bot_setting)
+        person = Person.update_status(call.from_user.id, bot_setting, 3)
         chat_id = call.message.chat.id
 
         text = f'*Шаг 3*'
