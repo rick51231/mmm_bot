@@ -43,7 +43,7 @@ class Person(models.Model):
     username = models.CharField(verbose_name="Username", max_length=128, null=True, blank=True)
     select_video = models.CharField("Выбранное видео", max_length=256, null=True, blank=True)
     current_step = models.IntegerField("Текущий шаг", default=0)
-    date_creation = models.DateTimeField(verbose_name='Дата и время создания', auto_now_add=True)
+    date_creation = models.DateTimeField(verbose_name='Дата и время  регистрации', auto_now_add=True)
     date_updated = models.DateTimeField(verbose_name='Дата и время последнего изменения', auto_now=True)
     date_finish_task = models.DateTimeField(verbose_name='Дата и время окончания теста', null=True, blank=True)
 
