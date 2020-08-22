@@ -124,6 +124,6 @@ CELERY_IMPORTS = ("workers.task",)
 CELERY_BEAT_SCHEDULE = {
     'send_notification_users': {
         'task': 'workers.task.send_notification_users',
-        'schedule': timedelta(minutes=1),
+        'schedule': timedelta(minutes=5),
     },
 }

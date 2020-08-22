@@ -1,4 +1,5 @@
 from datetime import timedelta
+from time import sleep
 
 from celery import shared_task
 from django.utils import timezone
@@ -12,12 +13,14 @@ import traceback
 @celery.task()
 def send_notification_users():
     count_message_past_finish = MessagePastFinish.objects.count()
+    message_past_finish = list(MessagePastFinish.objects.all())
 
     if count_message_past_finish:
         for person in Person.objects.all():
+            sleep(1)
             if person.date_finish_task and person.bot:
                 bot = TeleBot(person.bot.bot_id, threaded=False)
-                for past_message in MessagePastFinish.objects.all():
+                for past_message in message_past_finish:
                     difference_time = timedelta(days=past_message.days, hours=past_message.hours,
                                                 minutes=past_message.minute)
                     time_passed = timezone.now() - person.date_finish_task
