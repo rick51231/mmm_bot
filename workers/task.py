@@ -23,7 +23,7 @@ def send_notification_users():
                 for past_message in message_past_finish:
                     difference_time = timedelta(days=past_message.days, hours=past_message.hours,
                                                 minutes=past_message.minute)
-                    time_passed = timezone.now() - person.date_finish_task
+                    time_passed = timezone.now() - person.date_creation
 
                     if time_passed > difference_time and person not in past_message.sending.all():
                         try:
